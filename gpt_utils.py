@@ -2,7 +2,7 @@ import os
 import openai
 
 OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
-FIRST_PROMPT = """I am going to provide you with binary classifier inputs and outputs. The classifying rule is a simple short english sentence. This is not a sentiment classifier! 
+FIRST_PROMPT = """I am going to provide you with binary classifier inputs and outputs. The classifying rule is a simple short English sentence. This is not a sentiment classifier! 
 Then I am going to just provide you with the inputs and you will have to predict the outputs. 
 Please respond in the same format as is the format of examples, that is "INPUT: ... OUTPUT: label"\n\n"""
 
@@ -25,7 +25,7 @@ class GPTChat:
         self.add_message(message, role)
 
         response = self.client.completions.create(
-            model=self.model, messages=self.messages, max_tokens=2000
+            model=self.model, messages=self.messages, max_tokens=1000
         )
         ai_text = response.choices[0].message.content
         if ai_text is None:
@@ -50,7 +50,7 @@ class AsyncGPTChat:
         self.add_message(message, role)
 
         response = await self.client.completions.create(
-            model=self.model, messages=self.messages, max_tokens=2000
+            model=self.model, messages=self.messages, max_tokens=1000
         )
         ai_text = response.choices[0].message.content
         if ai_text is None:

@@ -68,9 +68,13 @@ async def run_chats(
 
     filtered_chats = [chats[i] for i in accuracy_threshold_indices]
     print("Len of filtered chats: ", len(filtered_chats))
-    filtered_explanations = await asyncio.gather(
-        *(manage_chat_async(chat, SECOND_PROMPT) for chat in filtered_chats)
-    )
+    if filtered_chats:
+        filtered_explanations = await asyncio.gather(
+            *(manage_chat_async(chat, SECOND_PROMPT) for chat in filtered_chats)
+        )
+    else:
+        filtered_explanations = []
+
     # Set all explanations below the threshold to None
     explanations = [None] * len(accuracies)
     for index, explanation in zip(accuracy_threshold_indices, filtered_explanations):
@@ -95,12 +99,19 @@ async def run_chats(
 
 
 if __name__ == "__main__":
-    number_of_chats_per_dataset = 4
-    n_shots = [2, 4, 8, 16, 24]
-    test_size = 50
-    model = "gpt-3.5-turbo"
+    # # GPT-3.5 turbo setup
+    # number_of_chats_per_dataset = 4
+    # n_shots = [2, 4, 8, 16, 24]
+    # test_size = 50
+    # model = "gpt-3.5-turbo"
 
-    encoding = tiktoken.encoding_for_model(model)
+    # GPT-4 setup
+    number_of_chats_per_dataset = 1
+    n_shots = [4, 10, 24]
+    test_size = 50
+    model = "gpt-4-1106-preview"
+
+    encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
 
     def count_tokens(l: list):
         return sum([len(encoding.encode(s)) for s in l])
@@ -115,12 +126,8 @@ if __name__ == "__main__":
     datasets["Primes"] = get_dataset_primes(3, 200)
     datasets["Fruits"] = load_from_jsonl("data/fruits_and_vegetables.jsonl")
     datasets["Contradictions"] = load_from_jsonl("data/contradictions.jsonl")
-    # accuracies, explanations = asyncio.run(
-    #     run_chats(dataset, number_of_chats, n_shots, test_size)
-    # )
-    # print(accuracies)
-    # print(f"Average acc: {np.mean(accuracies):.2f}")
-    # print(*zip(explanations, accuracies), sep="\n")
+
+
     results_dict = {}
     df_dict = []
     for n_shot in tqdm(n_shots):
@@ -134,9 +141,9 @@ if __name__ == "__main__":
             )
         )
         df_dict.append(process_results_table(results_dict[n_shot], n_shots=n_shot))
-        time.sleep(10)  # prevent hitting API limits
+        time.sleep(20)  # prevent hitting API limits
 
     df = pd.concat(df_dict, axis=1)
     columns = [f"accuracy_{i}" for i in n_shots] + [f"explanation_{i}" for i in n_shots]
     df = df[columns]
-    df.to_parquet("results_df.parquet")
+    df.to_parquet(f"results_df_{model}.parquet")
