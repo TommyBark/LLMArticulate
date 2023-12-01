@@ -6,7 +6,8 @@ FIRST_PROMPT = """I am going to provide you with binary classifier inputs and ou
 Then I am going to just provide you with the inputs and you will have to predict the outputs. 
 Please respond in the same format as is the format of examples, that is "INPUT: ... OUTPUT: label"\n\n"""
 
-SECOND_PROMPT = """ Can you tell me rule you used to predict the outputs? It should be a simple one sentence description."""
+SECOND_PROMPT = """ Can you tell me rule you used to predict the outputs? It should be a simple one sentence description. 
+                    Respond just with the rule itself."""
 
 
 class GPTChat:
@@ -24,7 +25,7 @@ class GPTChat:
         self.add_message(message, role)
 
         response = self.client.completions.create(
-            model=self.model, messages=self.messages
+            model=self.model, messages=self.messages, max_tokens=2000
         )
         ai_text = response.choices[0].message.content
         if ai_text is None:
@@ -49,7 +50,7 @@ class AsyncGPTChat:
         self.add_message(message, role)
 
         response = await self.client.completions.create(
-            model=self.model, messages=self.messages
+            model=self.model, messages=self.messages, max_tokens=2000
         )
         ai_text = response.choices[0].message.content
         if ai_text is None:

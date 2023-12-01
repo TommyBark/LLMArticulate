@@ -1,6 +1,8 @@
 import json
 import random
 import re
+import numpy as np
+import pandas as pd
 
 
 def save_to_jsonl(dataset, file_name: str) -> None:
@@ -21,6 +23,8 @@ def extract_predictions(response: str) -> list:
 
 
 def get_accuracy(labels: list, outputs: list) -> float:
+    if len(labels) != len(outputs):
+        return np.nan
     return sum(
         [1 if label == output else 0 for label, output in zip(labels, outputs)]
     ) / len(labels)
@@ -49,7 +53,9 @@ def sample_dataset(dataset: list, n: int, seed=42):
     return sampled_items, modified_dataset
 
 
-def get_prompt_and_labels(dataset, start_prompt, n_shots=2, test_size=20):
+def get_prompt_and_labels(
+    dataset: list, start_prompt: str, n_shots: int = 2, test_size: int = 20
+):
     samples, modified_dataset = sample_dataset(dataset, n_shots)
     for s in samples:
         start_prompt += f"INPUT: \"{s['text']}\" OUTPUT: {s['label']}\n\n"
@@ -60,3 +66,17 @@ def get_prompt_and_labels(dataset, start_prompt, n_shots=2, test_size=20):
         labels.append(modified_dataset[i]["label"])
 
     return start_prompt, labels
+
+
+def process_results_table(results_dict: dict, n_shots: list) -> pd.DataFrame:
+    df_dict = {}
+    for dataset, values in results_dict.items():
+        for i in range(len(results_dict[dataset]["preds"])):
+            df_dict[f"{dataset}_{i}"] = {
+                f"accuracy_{n_shots}": get_accuracy(
+                    results_dict[dataset]["labels"][i],
+                    results_dict[dataset]["preds"][i],
+                ),
+                f"explanation_{n_shots}": results_dict[dataset]["explanations"][i],
+            }
+    return pd.DataFrame.from_dict(df_dict, orient="index")

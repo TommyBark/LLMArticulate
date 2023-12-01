@@ -89,6 +89,17 @@ def get_dataset_primes(min: int = 100, max: int = 1000) -> list:
     return dataset
 
 
+def get_dataset_even(size: int = 100) -> list:
+    nums = []
+    labels = []
+    for i in range(size):
+        nums.append(i)
+        labels.append((i + 1) % 2)
+    dataset = zip_dataset(nums, labels)
+    random.shuffle(dataset)
+    return dataset
+
+
 def _generate_dataset_gpt(
     positive_prompt: str, negative_prompt: str, n_sentences: int = 200
 ) -> list:
