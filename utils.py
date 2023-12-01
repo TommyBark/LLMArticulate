@@ -68,7 +68,7 @@ def get_prompt_and_labels(
     return start_prompt, labels
 
 
-def process_results_table(results_dict: dict, n_shots: list) -> pd.DataFrame:
+def process_results_table(results_dict: dict, n_shots: int) -> pd.DataFrame:
     df_dict = {}
     for dataset, values in results_dict.items():
         for i in range(len(results_dict[dataset]["preds"])):

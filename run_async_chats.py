@@ -140,22 +140,3 @@ if __name__ == "__main__":
     columns = [f"accuracy_{i}" for i in n_shots] + [f"explanation_{i}" for i in n_shots]
     df = df[columns]
     df.to_parquet("results_df.parquet")
-
-    # for name, result in results.items():
-    #     print(f"Dataset: {name}")
-    #     print(
-    #         f"Average acc: {np.nanmean([get_accuracy(labels, outputs) for labels, outputs in zip(result['labels'], result['preds'])]):.2f}"
-    #     )
-    #     print(
-    #         *zip(
-    #             result["explanations"],
-    #             [
-    #                 get_accuracy(labels, outputs)
-    #                 for labels, outputs in zip(result["labels"], result["preds"])
-    #             ],
-    #         ),
-    #         sep="\n",
-    #     )
-
-    # with open("results.pkl", "wb") as f:
-    #     pickle.dump(results, f)
